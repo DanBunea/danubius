@@ -1,0 +1,8 @@
+{:tasks
+ {test           {:doc "Run the tests"
+                  :task (clojure "-M:test")}
+
+  format:check   (shell "cljfmt check")
+  format         (shell "cljfmt fix")
+
+  clean          (shell "rm -rf .cpcache target")}}
