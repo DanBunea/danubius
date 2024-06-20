@@ -13,3 +13,7 @@ node_modules
 /resources/electric-manifest.edn
 /target
 .DS_Store
+.datomic-local/
+.calva/
+.clj-kondo/
+.portal/
