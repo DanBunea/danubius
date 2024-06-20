@@ -15,7 +15,8 @@
 
 (def machine
   {:id :place-form
-   :states {:form      {:on {:CHANGE {:actions change}}}}})
+   :on {:CHANGE {:actions change}}
+   :states {:form      {:on {}}}})
 
 (e/defn Place [{:keys [id user-id]}]
   (e/server

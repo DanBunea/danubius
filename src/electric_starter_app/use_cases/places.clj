@@ -1,17 +1,12 @@
 (ns electric-starter-app.use-cases.places
   (:require
-   [datomic.client.api :as dd]
-   [electric-starter-app.adapters.datomic.conn :refer [get-db]]))
+   [electric-starter-app.adapters.datomic.repo :as repo]))
 
-(defn find-all-places []
-  (->> (get-db)
-       (dd/q
-        '[:find (pull ?db-id [:db/id :place/name])
-          :where [?db-id :place/name]])
-       (mapv first)))
+(defn find-all-places [instant] (repo/find-all-places instant))
 
 (comment
 
-  (find-all-places)
+  (find-all-places nil)
+  (find-all-places #inst "2024-06-20T13:43:04.953-00:00")
 
   nil)

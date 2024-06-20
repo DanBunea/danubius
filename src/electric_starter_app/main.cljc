@@ -14,7 +14,7 @@
                routes/route-match match
                routes/route-name (some-> match :data :name)
                routes/re-router]
-       (d/h1 (d/text "all"))
+       
        (case routes/route-name
          :places
          (Places. {:user-id "mrx"})
