@@ -16,10 +16,6 @@
                      {:db/id "paris1"
                       :place/name "rue de rivoli, 101, Paris, France"}]))
 
+(comment
 
-
-(comment 
-  
-  (setup-test-database (get-connection))
-  
-  )
+  (setup-test-database (get-connection)))

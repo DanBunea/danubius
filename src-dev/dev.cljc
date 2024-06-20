@@ -20,6 +20,9 @@
         :resources-path "public/electric_starter_app"
         :manifest-path ; contains Electric compiled program's version so client and server stays in sync
         "public//electric_starter_app/js/manifest.edn"})
+     
+      ;;rcf/test
+     (hyperfiddle.rcf/enable!)
 
      (defn -main [& args]
        (log/info "Starting Electric compiler and server...")

@@ -31,18 +31,18 @@
   ;; Applied bottom-up
   (-> (electric-ring/wrap-electric-websocket next-handler entrypoint) ; 5. connect electric client
     ; 4. this is where you would add authentication middleware (after cookie parsing, before Electric starts)
-    (cookies/wrap-cookies) ; 3. makes cookies available to Electric app
-    (electric-ring/wrap-reject-stale-client config) ; 2. reject stale electric client
-    (wrap-params))) ; 1. parse query params
+      (cookies/wrap-cookies) ; 3. makes cookies available to Electric app
+      (electric-ring/wrap-reject-stale-client config) ; 2. reject stale electric client
+      (wrap-params))) ; 1. parse query params
 
 (defn get-modules [manifest-path]
   (when-let [manifest (io/resource manifest-path)]
     (let [manifest-folder (when-let [folder-name (second (rseq (str/split manifest-path #"\/")))]
                             (str "/" folder-name "/"))]
       (->> (slurp manifest)
-        (edn/read-string)
-        (reduce (fn [r module] (assoc r (keyword "hyperfiddle.client.module" (name (:name module)))
-                                 (str manifest-folder (:output-name module)))) {})))))
+           (edn/read-string)
+           (reduce (fn [r module] (assoc r (keyword "hyperfiddle.client.module" (name (:name module)))
+                                         (str manifest-folder (:output-name module)))) {})))))
 
 (defn template
   "In string template `<div>$:foo/bar$</div>`, replace all instances of $key$
@@ -61,60 +61,60 @@ information."
     (if-let [response (res/resource-response (str (check string? (:resources-path config)) "/index.html"))]
       (if-let [bag (merge config (get-modules (check string? (:manifest-path config))))]
         (-> (res/response (template (slurp (:body response)) bag)) ; TODO cache in prod mode
-          (res/content-type "text/html") ; ensure `index.html` is not cached
-          (res/header "Cache-Control" "no-store")
-          (res/header "Last-Modified" (get-in response [:headers "Last-Modified"])))
+            (res/content-type "text/html") ; ensure `index.html` is not cached
+            (res/header "Cache-Control" "no-store")
+            (res/header "Last-Modified" (get-in response [:headers "Last-Modified"])))
         (-> (res/not-found (pr-str ::missing-shadow-build-manifest)) ; can't inject js modules
-          (res/content-type "text/plain")))
+            (res/content-type "text/plain")))
       ;; index.html file not found on classpath
       (next-handler ring-req))))
 
 (defn not-found-handler [_ring-request]
   (-> (res/not-found "Not found")
-    (res/content-type "text/plain")))
+      (res/content-type "text/plain")))
 
 (defn http-middleware [config]
   ;; these compose as functions, so are applied bottom up
   (-> not-found-handler
-    (wrap-index-page config) ; 3. otherwise fallback to default page file
-    (wrap-resource (:resources-path config)) ; 2. serve static file from classpath
-    (wrap-content-type) ; 1. detect content (e.g. for index.html)
-    ))
+      (wrap-index-page config) ; 3. otherwise fallback to default page file
+      (wrap-resource (:resources-path config)) ; 2. serve static file from classpath
+      (wrap-content-type) ; 1. detect content (e.g. for index.html)
+      ))
 
 (defn middleware [config entrypoint]
   (-> (http-middleware config)  ; 2. otherwise, serve regular http content
-    (electric-websocket-middleware config entrypoint))) ; 1. intercept websocket upgrades and maybe start Electric
+      (electric-websocket-middleware config entrypoint))) ; 1. intercept websocket upgrades and maybe start Electric
 
 (defn- add-gzip-handler!
   "Makes Jetty server compress responses. Optional but recommended."
   [server]
   (.setHandler server
-    (doto (GzipHandler.)
-      #_(.setIncludedMimeTypes (into-array ["text/css" "text/plain" "text/javascript" "application/javascript" "application/json" "image/svg+xml"])) ; only compress these
-      (.setMinGzipSize 1024)
-      (.setHandler (.getHandler server)))))
+               (doto (GzipHandler.)
+                 #_(.setIncludedMimeTypes (into-array ["text/css" "text/plain" "text/javascript" "application/javascript" "application/json" "image/svg+xml"])) ; only compress these
+                 (.setMinGzipSize 1024)
+                 (.setHandler (.getHandler server)))))
 
 (defn- configure-websocket!
   "Tune Jetty Websocket config for Electric compat." [server]
   (JettyWebSocketServletContainerInitializer/configure
-    (.getHandler server)
-    (reify JettyWebSocketServletContainerInitializer$Configurator
-      (accept [_this _servletContext wsContainer]
-        (.setIdleTimeout wsContainer (java.time.Duration/ofSeconds 60))
-        (.setMaxBinaryMessageSize wsContainer (* 100 1024 1024)) ; 100M - temporary
-        (.setMaxTextMessageSize wsContainer (* 100 1024 1024))   ; 100M - temporary
-        ))))
+   (.getHandler server)
+   (reify JettyWebSocketServletContainerInitializer$Configurator
+     (accept [_this _servletContext wsContainer]
+       (.setIdleTimeout wsContainer (java.time.Duration/ofSeconds 60))
+       (.setMaxBinaryMessageSize wsContainer (* 100 1024 1024)) ; 100M - temporary
+       (.setMaxTextMessageSize wsContainer (* 100 1024 1024))   ; 100M - temporary
+       ))))
 
 (defn start-server! [entrypoint
                      {:keys [port host]
                       :or   {port 8080, host "0.0.0.0"}
                       :as   config}]
   (let [server     (ring/run-jetty (middleware config entrypoint)
-                     (merge {:port         port
-                             :join?        false
-                             :configurator (fn [server]
-                                             (configure-websocket! server)
-                                             (add-gzip-handler! server))}
-                       config))]
+                                   (merge {:port         port
+                                           :join?        false
+                                           :configurator (fn [server]
+                                                           (configure-websocket! server)
+                                                           (add-gzip-handler! server))}
+                                          config))]
     (log/info "👉" (str "http://" host ":" (-> server (.getConnectors) first (.getPort))))
     server))

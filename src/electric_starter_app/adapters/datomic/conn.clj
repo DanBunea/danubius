@@ -1,6 +1,6 @@
 (ns electric-starter-app.adapters.datomic.conn
   (:require
-   [datomic.client.api :as d] 
+   [datomic.client.api :as d]
    [clojure.java.io :as io]))
 
 (def current-directory (.getCanonicalPath (io/file ".")))
@@ -34,4 +34,3 @@
 
 (defn transact [!conn tx-data]
   (d/transact !conn {:tx-data tx-data}))
-  

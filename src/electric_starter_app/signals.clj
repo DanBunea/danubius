@@ -10,7 +10,7 @@
     (when-not existing
       (intern *ns* ss (atom 0)))
     (let [dyn-var (-> (ns-resolve *ns* ss)
-                    (deref))]
+                      (deref))]
       (swap! dynamic-signal-vars assoc signal-name (System/currentTimeMillis))
       dyn-var)))
 
@@ -23,17 +23,17 @@
         (swap! dynamic-signal-vars dissoc signal-name)))))
 
 (tests
-  (def signal-name (str "topic-" (rand-int 1000)))
-  (def signal-atom (signal signal-name))
-  (type signal-atom) := clojure.lang.Atom
-  @signal-atom := 0
-  (swap! signal-atom inc)
-  @signal-atom := 1
+ (def signal-name (str "topic-" (rand-int 1000)))
+ (def signal-atom (signal signal-name))
+ (type signal-atom) := clojure.lang.Atom
+ @signal-atom := 0
+ (swap! signal-atom inc)
+ @signal-atom := 1
 
-  (nil? (ns-resolve *ns* (symbol signal-name))) := false
+ (nil? (ns-resolve *ns* (symbol signal-name))) := false
 
-  (remove-signal signal-name)
-  (nil? (ns-resolve *ns* (symbol signal-name))) := true)
+ (remove-signal signal-name)
+ (nil? (ns-resolve *ns* (symbol signal-name))) := true)
 
 (defn remove-unused-signals-after-23h
   "Checks and removes unused vars not accessed within the last 24 hours"

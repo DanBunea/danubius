@@ -1,6 +1,5 @@
 (ns electric-starter-app.adapters.datomic.schema)
 
-
 (def base-schema [{:db/ident :user/id
                    :db/cardinality :db.cardinality/one
                    :db/unique :db.unique/identity
