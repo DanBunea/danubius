@@ -41,19 +41,23 @@
             (d/text
              (contrib.str/pprint-str (:error state)))))
 
-         (d/label
-          (d/props {:for "name"})
-          (d/text "Name: "))
-         (d/input
-          (d/props {:type "text"
-                    :id "name"
-                    :placeholder "Name"
-                    :value (get-in state [:selected :place/name])})
-          (d/on "change" (e/fn [e] (let [label (-> e .-target .-value)]
-                                     (dispatch [:CHANGE {:place/name label}])))))
+         (d/div
+          (d/props {:class "flex flex-row gap-4 items-center"})
+          (d/label
+           (d/props {:for "name"})
+           (d/text "Name: "))
+          (d/input
+           (d/props {:type "text"
+                     :class "pl-4 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                     :id "name"
+                     :placeholder "Name"
+                     :value (get-in state [:selected :place/name])})
+           (d/on "change" (e/fn [e] (let [label (-> e .-target .-value)]
+                                      (dispatch [:CHANGE {:place/name label}]))))))
 
          (try
            (d/button
+            (d/props {:class "rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"})
             (d/on "click" (e/fn [_]
                             (let [transaction [(:selected state)]]
                               (e/server
