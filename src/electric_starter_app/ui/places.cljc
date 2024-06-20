@@ -23,64 +23,61 @@
 
 (e/defn Places [{:keys [user-id]}]
   (e/server
-    ;; (let [!at (signal "topic-places")
-        ;;   topic (e/watch !at)
-        ;;   ]
-   (e/client
-    (let [!state (atom {:_state :list
-                        :user {:user/id user-id}})
-          state (e/watch !state)
-          dispatch (partial dispatch-to-machine machine !state)
-          time (-> state :date :time)]
+   (let [!at (signal "topic-places")
+         topic (e/watch !at)]
+     (e/client
+      (let [!state (atom {:_state :list
+                          :user {:user/id user-id}})
+            state (e/watch !state)
+            dispatch (partial dispatch-to-machine machine !state)
+            time (-> state :date :time)]
 
-      (d/pre
-       (d/props {:class "cl-12 cs-12"})
-       (d/text  (contrib.str/pprint-str state)))
+        (d/pre
+         (d/props {:class "cl-12 cs-12"})
+         (d/text  (contrib.str/pprint-str state)))
 
-      (when (= :list (:_state state))
+        (when (= :list (:_state state))
+          (d/div
+           (d/div
+            (d/a
+             (d/on "click" (e/fn [_] (routes/navigate :new-place {})))
+             (d/text "Add place")))))
+
+        (when (= :history (:_state state))
+          (d/div
+           (d/div
+            (d/a
+             (d/on "click" (e/fn [_] (dispatch [:REMOVE-DATE nil])))
+             (d/text "Now")))))
+
         (d/div
          (d/div
-          (d/a
-           (d/on "click" (e/fn [_] (routes/navigate :new-place {})))
-           (d/text "Add place")))))
+          (e/server
+           (e/for-by :db/id [tx (places-tr/find-all-places-transactions)]
+                     (let [tx-id (:db/id tx)
+                           time (:db/txInstant tx)
+                           user-id (:tx/user-id tx)]
+                       (e/client
+                        (d/div
+                         (d/props {:id (str "show_" tx-id)})
+                         (d/a
+                          (d/on "click" (e/fn [_] (dispatch [:CHANGE-DATE {:db/id tx-id :time time}])))
+                          (d/text (str time " - " tx-id))))
+                        (d/div (d/text user-id))))))))
 
-      (when (= :history (:_state state))
         (d/div
-         (d/div
-          (d/a
-           (d/on "click" (e/fn [_] (dispatch [:REMOVE-DATE nil])))
-           (d/text "Now")))))
+         {:id "grid"}
 
-      (d/div
-       (d/div
-        (e/server
-         (e/for-by :db/id [tx (places-tr/find-all-places-transactions)]
-                   (let [tx-id (:db/id tx)
-                         time (:db/txInstant tx)
-                         user-id (:tx/user-id tx)]
-                     (e/client
-                      (d/div
-                       (d/props {:id (str "show_" tx-id)})
-                       (d/a
-                        (d/on "click" (e/fn [_] (dispatch [:CHANGE-DATE {:db/id tx-id :time time}])))
-                        (d/text (str time " - " tx-id))))
+         (e/server
+          (e/for-by :db/id [place (places/find-all-places topic time)]
+                    (let [id (:db/id place)
+                          name (:place/name place)]
+                      (e/client
+                       (when (= :list (:_state state))
+                         (d/div
+                          (d/props {:id (str "edit_" id)})
+                          (d/a
+                           (d/on "click" (e/fn [_] (e/client (routes/navigate :place {:path-params {:id id}}))))
+                           (d/text "edit"))))
+                       (d/div (d/text name))))))))))))
 
-                      (d/div (d/text user-id))))))))
-
-      (d/div
-       {:id "grid"}
-
-       (e/server
-        (e/for-by :db/id [place (places/find-all-places time)]
-                  (let [id (:db/id place)
-                        name (:place/name place)]
-                    (e/client
-                     (when (= :list (:_state state))
-                       (d/div
-                        (d/props {:id (str "edit_" id)})
-                        (d/a
-                         (d/on "click" (e/fn [_] (e/client (routes/navigate :place {:path-params {:id id}}))))
-                         (d/text "edit"))))
-
-                     (d/div (d/text name)))))))))))
-                        ;; )

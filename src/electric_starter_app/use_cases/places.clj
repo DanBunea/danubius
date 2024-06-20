@@ -2,7 +2,7 @@
   (:require
    [electric-starter-app.adapters.datomic.repo :as repo]))
 
-(defn find-all-places [instant] (repo/find-all-places instant))
+(defn find-all-places [_sig instant] (repo/find-all-places instant))
 
 (comment
 
