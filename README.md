@@ -2,7 +2,8 @@
 
 A minimal Electric Clojure app, and instructions on how to integrate it into an existing app. For more demos and examples, see [Electric Fiddle](https://github.com/hyperfiddle/electric-fiddle).
 
-[Watch the video](docs/Danubius.mp4)
+[![Watch the video](https://img.youtube.com/vi/DU4MDgSH-0g/maxresdefault.jpg)](https://www.youtube.com/watch?v=DU4MDgSH-0g)
+
 
 
 ## Instructions
