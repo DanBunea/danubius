@@ -23,19 +23,18 @@
   (d/create-database client {:db-name db-name})
   nil)
 
-(defn db-exists? 
+(defn db-exists?
   ([]
    (db-exists? db-name))
   ([db-name]
    (some #(= db-name %) (d/list-databases client {})))) ;; Checks if db-name exists in the list of databases)
 
-(comment 
+(comment
   (db-exists?)
 
   (db-exists? "abc")
-  
-  (db-exists? "danubius")
-  )
+
+  (db-exists? "danubius"))
 
 (defn ensure-db-exists! []
   (when-not (db-exists?)
