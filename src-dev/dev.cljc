@@ -5,7 +5,10 @@
    #?(:clj [electric-starter-app.server-jetty :as jetty])
    #?(:clj [shadow.cljs.devtools.api :as shadow])
    #?(:clj [shadow.cljs.devtools.server :as shadow-server])
-   #?(:clj [clojure.tools.logging :as log])))
+   #?(:clj [clojure.tools.logging :as log])
+   #?(:clj [electric-starter-app.adapters.datomic.migrations.migrations :refer [run-migrations]])
+   #?(:clj [electric-starter-app.adapters.datomic.conn :refer [get-connection ensure-db-exists!]])
+   ))
 
 (comment 
   (-main)
@@ -25,6 +28,10 @@
      (hyperfiddle.rcf/enable!)
 
      (defn -main [& args]
+       (log/info "Running migrations")
+       (ensure-db-exists!)
+       (run-migrations (get-connection))
+
        (log/info "Starting Electric compiler and server...")
 
        (shadow-server/start!)
