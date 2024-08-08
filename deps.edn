@@ -12,10 +12,7 @@
            metosin/reitit                 {:mvn/version "0.7.0-alpha7"}
             ;; tests
            com.hyperfiddle/rcf            {:mvn/version "20220926-202227"}
-           tortue/spy                     {:mvn/version "2.13.0"}
-           ;; datomic migrations
-        ;;    caribou/caribou       {:git/url "https://github.com/recbus/caribou" :sha "b32ac98df7d7ec87f225d47354671be172ffa87e"}
-           }
+           tortue/spy                     {:mvn/version "2.13.0"}}
  :paths   ["src" "resources"]
  :aliases {:dev
            {:extra-paths ["src-dev"]
